@@ -883,6 +883,14 @@ $("#copyRobots").addEventListener("click",()=>{const t=$("#robotsOut").textConte
 
 /* Citability */
 const fluff=/\b(best-in-class|world-class|cutting-edge|seamless(ly)?|revolutionary|game-changing|industry-leading|leading provider|innovative|robust|unlock|unleash|synerg\w*|next-generation|state-of-the-art)\b/i;
+const FH_VERB="(measured|tested|tracked|found|ran|run|surveyed|analy[sz]ed|built|interviewed|audited|reviewed|saw|seen|observed|recovered|launched|shipped|deployed|collected|compared|benchmarked|studied|helped|worked|led|managed|logged|counted|cut|reduced|raised|grew|doubled|tripled|learned|discovered|piloted|ran|built|filed|litigated|negotiated|advised|recorded|calculated|modeled|modelled)";
+function firstHand(t){
+  const a=new RegExp("\\b(we|i|our team|my team)\\b(\\s+[a-z']+){0,2}?\\s+"+FH_VERB+"\\b","i");
+  const b=new RegExp("\\b(we've|we have|we'd|i've|i have|i'd)\\s+(also\\s+|personally\\s+|repeatedly\\s+)?"+FH_VERB+"\\b","i");
+  const c=/\b(our|my)\s+(own\s+)?(data|logs|audits?|analysis|research|surveys?|tests?|experiments?|clients?|customers?|results|benchmarks?|study|studies|records|pilots?|portfolio|fieldwork|measurements?|numbers|dataset|cases?|engagements?)\b/i;
+  const d=/\b(first-hand|firsthand|in my experience|in our experience|in practice we|when we)\b/i;
+  return a.test(t)||b.test(t)||c.test(t)||d.test(t);
+}
 function check(){
   const t=$("#ckText").value.trim();const sents=t.split(/(?<=[.!?])\s+/).filter(Boolean);const words=t.split(/\s+/).filter(Boolean);
   const first=(sents[0]||"").split(/\s+/).filter(Boolean).length;const avg=sents.length?words.length/sents.length:0;
@@ -891,7 +899,7 @@ function check(){
     [/(according to|per |source:|study|survey|report(ed)?|logs|data from|https?:\/\/|\bfound\b)/i.test(t),"Named source","Says where the claim comes from"],
     [/\b(19|20)\d{2}\b|\b(January|February|March|April|May|June|July|August|September|October|November|December)\b/.test(t),"Date","Lets the model judge how current it is"],
     [first>0&&first<=28,"Plain lead","Opening sentence of 28 words or fewer, so it can be lifted out"],
-    [/\b(we|our team|I)\s+(measured|tested|tracked|found|ran|surveyed|analy[sz]ed|built|interviewed|audited|reviewed)\b/i.test(t),"First-hand finding","Something you did or measured that the model cannot already know"],
+    [firstHand(t),"First-hand finding","Something you did, saw or measured, e.g. \"we tracked\", \"I've seen\", \"our audit found\", \"across our clients\""],
     [!fluff.test(t)&&avg>0&&avg<=28,"No filler","No hype words, and sentences average 28 words or fewer"]
   ];
   const n=t?tests.filter(x=>x[0]).length:0;
